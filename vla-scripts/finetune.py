@@ -571,6 +571,37 @@ def log_metrics_to_wandb(metrics, prefix, step, wandb_entity) -> None:
     wandb_entity.log(log_dict, step=step)
 
 
+def log_metrics_to_file(metrics, prefix, step, log_file_path, lr=None) -> None:
+    """
+    Log metrics to a JSONL file for offline monitoring.
+
+    Args:
+        metrics (dict): Dictionary of metrics to log
+        prefix (str): Prefix for metric names
+        step (int): Training step
+        log_file_path (Path): Path to the log file
+        lr (float, optional): Current learning rate
+
+    Returns:
+        None.
+    """
+    import json
+    from datetime import datetime
+
+    log_entry = {
+        "step": step,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "prefix": prefix,
+    }
+    for name, value in metrics.items():
+        log_entry[name] = float(value) if hasattr(value, '__float__') else value
+    if lr is not None:
+        log_entry["learning_rate"] = float(lr)
+
+    with open(log_file_path, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+
+
 def save_training_checkpoint(
     cfg,
     run_dir,
@@ -678,6 +709,7 @@ def run_validation(
     log_step,
     distributed_state,
     val_time_limit,
+    run_dir=None,
 ) -> None:
     """
     Compute validation set metrics for logging.
@@ -745,9 +777,11 @@ def run_validation(
     # Add batch count to metrics
     avg_val_metrics["val_batches_count"] = val_batches_count
 
-    # Log validation metrics to W&B
+    # Log validation metrics to W&B and local file
     if distributed_state.is_main_process:
         log_metrics_to_wandb(avg_val_metrics, "VLA Val", log_step, wandb)
+        if run_dir is not None:
+            log_metrics_to_file(avg_val_metrics, "VLA Val", log_step, run_dir / "train_metrics.jsonl")
 
 
 @draccus.wrap()
@@ -1091,6 +1125,16 @@ def finetune(cfg: FinetuneConfig) -> None:
                     step=log_step,
                 )
 
+            # Log metrics to local file (every wandb_log_freq gradient steps)
+            if distributed_state.is_main_process and log_step % cfg.wandb_log_freq == 0:
+                log_metrics_to_file(
+                    smoothened_metrics,
+                    "VLA Train",
+                    log_step,
+                    run_dir / "train_metrics.jsonl",
+                    lr=scheduler.get_last_lr()[0],
+                )
+
             # Optimizer and LR scheduler step
             if (batch_idx + 1) % cfg.grad_accumulation_steps == 0:
                 optimizer.step()
@@ -1128,6 +1172,7 @@ def finetune(cfg: FinetuneConfig) -> None:
                     log_step=log_step,
                     distributed_state=distributed_state,
                     val_time_limit=cfg.val_time_limit,
+                    run_dir=run_dir,
                 )
                 # Set model back to training mode after validation
                 vla.train()
