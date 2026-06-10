@@ -846,6 +846,11 @@ def aloha_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
     return trajectory
 
 
+def piper_grasp_2cam_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+    # Piper 7-DOF grasping dataset: already in correct format (action[7], state[7], normalized to [-1,1])
+    return trajectory
+
+
 # === Registry ===
 OXE_STANDARDIZATION_TRANSFORMS = {
     "bridge_oxe": bridge_oxe_dataset_transform,
@@ -930,4 +935,6 @@ OXE_STANDARDIZATION_TRANSFORMS = {
     "aloha1_fold_shirt_30_demos": aloha_dataset_transform,
     "aloha1_scoop_X_into_bowl_45_demos": aloha_dataset_transform,
     "aloha1_put_X_into_pot_300_demos": aloha_dataset_transform,
+    ### Piper fine-tuning datasets
+    "piper_grasp_2cam": piper_grasp_2cam_dataset_transform,
 }
