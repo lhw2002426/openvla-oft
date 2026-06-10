@@ -851,6 +851,11 @@ def piper_grasp_2cam_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, 
     return trajectory
 
 
+def piper_grasp2cam_v2_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+    # Piper V2 7-DOF grasping dataset (603 episodes): joint absolute values normalized to [-1,1]
+    return trajectory
+
+
 # === Registry ===
 OXE_STANDARDIZATION_TRANSFORMS = {
     "bridge_oxe": bridge_oxe_dataset_transform,
@@ -937,4 +942,5 @@ OXE_STANDARDIZATION_TRANSFORMS = {
     "aloha1_put_X_into_pot_300_demos": aloha_dataset_transform,
     ### Piper fine-tuning datasets
     "piper_grasp_2cam": piper_grasp_2cam_dataset_transform,
+    "piper_grasp2cam_v2": piper_grasp2cam_v2_dataset_transform,
 }

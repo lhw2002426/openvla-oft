@@ -230,5 +230,9 @@ OXE_NAMED_MIXTURES: Dict[str, List[Tuple[str, float]]] = {
     "piper_grasp_2cam": [
         ("piper_grasp_2cam", 1.0),
     ],
+    # === Piper V2 Fine-Tuning Datasets (603 episodes, joint absolute values) ===
+    "piper_grasp2cam_v2": [
+        ("piper_grasp2cam_v2", 1.0),
+    ],
 # fmt: on
 }
