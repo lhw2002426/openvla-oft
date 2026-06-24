@@ -721,4 +721,14 @@ OXE_DATASET_CONFIGS = {
         "state_encoding": StateEncoding.JOINT,
         "action_encoding": ActionEncoding.JOINT_POS,
     },
+    # === Piper V3 (binary-gripper) Fine-Tuning Datasets ===
+    # Same as v2 but gripper dim is binarized to {0, 1} (matches OpenVLA-OFT
+    # pretraining assumption). Joints 1-6 keep their continuous q01/q99 range.
+    "piper_grasp2cam_v3": {
+        "image_obs_keys": {"primary": "image", "secondary": None, "wrist": "wrist_image"},
+        "depth_obs_keys": {"primary": None, "secondary": None, "wrist": None},
+        "state_obs_keys": ["state"],
+        "state_encoding": StateEncoding.JOINT,
+        "action_encoding": ActionEncoding.JOINT_POS,
+    },
 }

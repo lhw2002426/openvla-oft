@@ -856,6 +856,14 @@ def piper_grasp2cam_v2_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str
     return trajectory
 
 
+def piper_grasp2cam_v3_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+    # Piper V3 7-DOF grasping dataset (603 episodes): same as V2 but the gripper
+    # dim (index 6) is binarized to {0, 1} in dataset units before normalization,
+    # so the normalized gripper value is strictly {-1, +1}. Joints 1-6 are
+    # continuous and identical to V2. No further transform needed.
+    return trajectory
+
+
 # === Registry ===
 OXE_STANDARDIZATION_TRANSFORMS = {
     "bridge_oxe": bridge_oxe_dataset_transform,
@@ -943,4 +951,5 @@ OXE_STANDARDIZATION_TRANSFORMS = {
     ### Piper fine-tuning datasets
     "piper_grasp_2cam": piper_grasp_2cam_dataset_transform,
     "piper_grasp2cam_v2": piper_grasp2cam_v2_dataset_transform,
+    "piper_grasp2cam_v3": piper_grasp2cam_v3_dataset_transform,
 }
